@@ -9,23 +9,21 @@ function wait(duration) {
     return new Promise((resolve) => setTimeout(resolve, duration));
 }
 
-function App() {
-    const queryClient = useQueryClient();
+/**
+ * /posts -> ["posts"]
+ * /posts/1 -> ["posts", post.id]
+ * /posts?authorId=1 -> ["posts", {authorID: 1}]
+ * /posts/2/comments -> ["posts", post.id, "comments"]
+ */
 
+function App() {
     const postsQuery = useQuery({
         queryKey: ["posts"],
-        queryFn: () => wait(1000).then(() => [...POSTS]),
-    });
-
-    const newPostMutation = useMutation({
-        mutationFn: (title) => {
-            return wait(1000).then(() =>
-                POSTS.push({ id: crypto.randomUUID(), title })
-            );
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(["posts"]);
-        },
+        queryFn: (obj) =>
+            wait(1000).then(() => {
+                console.log(obj);
+                return [...POSTS];
+            }),
     });
 
     if (postsQuery.isLoading) {
@@ -41,11 +39,6 @@ function App() {
             {postsQuery.data.map((post) => (
                 <div key={post.id}>{post.title}</div>
             ))}
-            <button
-                disabled={newPostMutation.isLoading}
-                onClick={() => newPostMutation.mutate("New Post")}>
-                Add Now
-            </button>
         </div>
     );
 }
