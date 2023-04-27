@@ -1,44 +1,20 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-const POSTS = [
-    { id: 1, title: "Post 1" },
-    { id: 2, title: "Post 2" },
-];
-
-function wait(duration) {
-    return new Promise((resolve) => setTimeout(resolve, duration));
-}
-
-/**
- * /posts -> ["posts"]
- * /posts/1 -> ["posts", post.id]
- * /posts?authorId=1 -> ["posts", {authorID: 1}]
- * /posts/2/comments -> ["posts", post.id, "comments"]
- */
+import { useState } from "react";
+import PostList1 from "./PostList1.jsx";
+import PostList2 from "./PostList2.jsx";
 
 function App() {
-    const postsQuery = useQuery({
-        queryKey: ["posts"],
-        queryFn: (obj) =>
-            wait(1000).then(() => {
-                console.log(obj);
-                return [...POSTS];
-            }),
-    });
-
-    if (postsQuery.isLoading) {
-        return <h1>Loading...</h1>;
-    }
-
-    if (postsQuery.isError) {
-        return <pre>{JSON.stringify(postsQuery.error)}</pre>;
-    }
+    const [currentPage, setCurrentPage] = useState(<PostList1 />);
 
     return (
         <div>
-            {postsQuery.data.map((post) => (
-                <div key={post.id}>{post.title}</div>
-            ))}
+            <button onClick={() => setCurrentPage(<PostList1 />)}>
+                Post List 1
+            </button>
+            <button onClick={() => setCurrentPage(<PostList2 />)}>
+                Post List 2
+            </button>
+            <br />
+            {currentPage}
         </div>
     );
 }
